@@ -1,5 +1,5 @@
-from django.contrib import auth
 from django import db
+from django.contrib import auth
 from django.utils.encoding import force_bytes
 
 
@@ -26,6 +26,7 @@ def check_password(environ, username, password):
         return user.check_password(password)
     finally:
         db.close_old_connections()
+
 
 def groups_for_user(environ, username):
     """

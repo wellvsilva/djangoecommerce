@@ -1,6 +1,7 @@
 "Dummy cache backend"
 
-from django.core.cache.backends.base import BaseCache, DEFAULT_TIMEOUT
+from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache
+
 
 class DummyCache(BaseCache):
     def __init__(self, host, *args, **kwargs):
@@ -40,7 +41,3 @@ class DummyCache(BaseCache):
 
     def clear(self):
         pass
-
-# For backwards compatibility
-class CacheClass(DummyCache):
-    pass

@@ -26,6 +26,7 @@ ESCAPE_MAPPINGS = {
     "Z": None,
 }
 
+
 class Choice(list):
     """
     Used to represent multiple possibilities at this point in a pattern string.
@@ -33,15 +34,18 @@ class Choice(list):
     code is clear.
     """
 
+
 class Group(list):
     """
     Used to represent a capturing group in the pattern string.
     """
 
+
 class NonCapture(list):
     """
     Used to represent a non-capturing group in the pattern string.
     """
+
 
 def normalize(pattern):
     """
@@ -55,11 +59,10 @@ def normalize(pattern):
     (3) Select the first (essentially an arbitrary) element from any character
         class. Select an arbitrary character for any unordered class (e.g. '.'
         or '\w') in the pattern.
-    (5) Ignore comments and any of the reg-exp flags that won't change
-        what we construct ("iLmsu"). "(?x)" is an error, however.
-    (6) Raise an error on all other non-capturing (?...) forms (e.g.
-        look-ahead and look-behind matches) and any disjunctive ('|')
-        constructs.
+    (4) Ignore comments, look-ahead and look-behind assertions, and any of the
+        reg-exp flags that won't change what we construct ("iLmsu"). "(?x)" is
+        an error, however.
+    (5) Raise an error on any disjunctive ('|') constructs.
 
     Django's URLs for forward resolving are either all positional arguments or
     all keyword arguments. That is assumed here, as well. Although reverse
@@ -92,7 +95,7 @@ def normalize(pattern):
                 result.append(".")
             elif ch == '|':
                 # FIXME: One day we'll should do this, but not in 1.0.
-                raise NotImplementedError
+                raise NotImplementedError('Awaiting Implementation')
             elif ch == "^":
                 pass
             elif ch == '$':
@@ -125,7 +128,7 @@ def normalize(pattern):
                     walk_to_end(ch, pattern_iter)
                 else:
                     ch, escaped = next(pattern_iter)
-                    if ch in "iLmsu#":
+                    if ch in "iLmsu#!=<":
                         # All of these are ignorable. Walk to the end of the
                         # group.
                         walk_to_end(ch, pattern_iter)
@@ -161,11 +164,11 @@ def normalize(pattern):
                         else:
                             result.append(Group((("%%(%s)s" % param), None)))
             elif ch in "*?+{":
-                # Quanitifers affect the previous item in the result list.
+                # Quantifiers affect the previous item in the result list.
                 count, ch = get_quantifier(ch, pattern_iter)
                 if ch:
                     # We had to look ahead, but it wasn't need to compute the
-                    # quanitifer, so use this character next time around the
+                    # quantifier, so use this character next time around the
                     # main loop.
                     consume_next = False
 
@@ -198,6 +201,7 @@ def normalize(pattern):
 
     return list(zip(*flatten_result(result)))
 
+
 def next_char(input_iter):
     """
     An iterator that yields the next character from "pattern_iter", respecting
@@ -217,6 +221,7 @@ def next_char(input_iter):
         if representative is None:
             continue
         yield representative, True
+
 
 def walk_to_end(ch, input_iter):
     """
@@ -238,12 +243,13 @@ def walk_to_end(ch, input_iter):
                 return
             nesting -= 1
 
+
 def get_quantifier(ch, input_iter):
     """
     Parse a quantifier from the input, where "ch" is the first character in the
     quantifier.
 
-    Returns the minimum number of occurences permitted by the quantifier and
+    Returns the minimum number of occurrences permitted by the quantifier and
     either None or the next character from the input_iter if the next character
     is not part of the quantifier.
     """
@@ -274,6 +280,7 @@ def get_quantifier(ch, input_iter):
         ch = None
     return int(values[0]), ch
 
+
 def contains(source, inst):
     """
     Returns True if the "source" contains an instance of "inst". False,
@@ -286,6 +293,7 @@ def contains(source, inst):
             if contains(elt, inst):
                 return True
     return False
+
 
 def flatten_result(source):
     """
@@ -339,4 +347,3 @@ def flatten_result(source):
         for i in range(len(result)):
             result[i] += piece
     return result, result_args
-
