@@ -1,18 +1,15 @@
-from importlib import import_module
-
 from django.core.management.base import CommandError
 from django.core.management.templates import TemplateCommand
 from django.utils.crypto import get_random_string
+from django.utils.importlib import import_module
 
 
 class Command(TemplateCommand):
     help = ("Creates a Django project directory structure for the given "
             "project name in the current directory or optionally in the "
             "given directory.")
-    missing_args_message = "You must provide a project name."
 
-    def handle(self, **options):
-        project_name, target = options.pop('name'), options.pop('directory')
+    def handle(self, project_name=None, target=None, *args, **options):
         self.validate_name(project_name, "project")
 
         # Check that the project_name cannot be imported.
@@ -26,7 +23,7 @@ class Command(TemplateCommand):
                                "project name. Please try another name." %
                                project_name)
 
-        # Create a random SECRET_KEY to put it in the main settings.
+        # Create a random SECRET_KEY hash to put it in the main settings.
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
         options['secret_key'] = get_random_string(50, chars)
 

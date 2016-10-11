@@ -1,16 +1,12 @@
-from importlib import import_module
-
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import NoArgsCommand
+from django.utils.importlib import import_module
 
 
-class Command(BaseCommand):
-    help = (
-        "Can be run as a cronjob or directly to clean out expired sessions "
-        "(only with the database backend at the moment)."
-    )
+class Command(NoArgsCommand):
+    help = "Can be run as a cronjob or directly to clean out expired sessions (only with the database backend at the moment)."
 
-    def handle(self, **options):
+    def handle_noargs(self, **options):
         engine = import_module(settings.SESSION_ENGINE)
         try:
             engine.SessionStore.clear_expired()
